@@ -28,7 +28,9 @@ const authorize = async () => {
 
 const getData = async () => {
     try {
-        const data = User.find();
+        const data = await User.find();
+
+        data.reverse();
         return data;
     } catch (err) {
         console.log(err);
