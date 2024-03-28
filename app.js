@@ -13,6 +13,8 @@ const spreadsheetId = process.env.SPREADSHEET_ID;
 
 const cred = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 
+const admin = process.env.ADMIN;
+
 const authorize = async () => {
     const auth = new google.auth.GoogleAuth({
         credentials: cred,
@@ -75,6 +77,12 @@ app.get("/", (req, res) => {
 
 app.get("/api/getData", async (req, res) => {
     try {
+        if(!req.headers.authorization || req.headers.authorization !== admin){
+            return res.send({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
         const users = await getData();
         return res.send({
             data: users,
@@ -91,6 +99,12 @@ app.get("/api/getData", async (req, res) => {
 
 app.post("/api/updateData", async (req, res) => {
     try {
+        if(!req.headers.authorization || req.headers.authorization !== admin){
+            return res.send({
+                success: false,
+                message: "Unauthorized",
+            });
+        }
         const users = await getData();
         const data = transformData(users);
 
