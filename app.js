@@ -104,7 +104,6 @@ app.post("/api/updateData", async (req, res) => {
         })
 
         return res.send({
-            data: response.data,
             success: true,
             message: "Data Updated Successfully",
         });
