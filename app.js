@@ -70,6 +70,23 @@ app.get("/", (req, res) => {
     res.send("Hello World");
 });
 
+
+app.get("/api/getData", async (req, res) => {
+    try {
+        const users = await getData();
+        return res.send({
+            data: users,
+            success: true,
+        });
+    } catch (err) {
+        console.log(err);
+        return res.send({
+            success: false,
+            message: "Something went wrong",
+        });
+    }
+});
+
 app.post("/api/updateData", async (req, res) => {
     try {
         const users = await getData();
