@@ -80,6 +80,7 @@ app.get("/api/getData", async (req, res) => {
     try {
         const users = await getData();
         return res.send({
+            count : users.length,
             data: users,
             success: true,
         });
