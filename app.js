@@ -23,9 +23,9 @@ const authorize = async () => {
 
     const client = await auth.getClient();
 
-    const  sheets  = google.sheets({ version: "v4", auth: client });
+    const sheets = google.sheets({ version: "v4", auth: client });
 
-    return  sheets ;
+    return sheets;
 };
 
 const getData = async () => {
@@ -41,28 +41,30 @@ const getData = async () => {
 
 const transformData = (data) => {
     const headers = [
-        "Full Name",
-        "Branch",
-        "Mobile No",
-        "Email",
-        "Favorite Quote",
-        "Why Join Club",
-        "Resume",
-        "Photo",
-        "Date",
+        "name",
+        "email",
+        "phone",
+        "transactionId",
+        "collegeName",
+        "yearOfStudy",
+        "branch",
+        "isDualBooted",
+        "referralCode",
+        "paymentImg",
     ];
 
     const newData = data.map((item) => {
         return [
-            item.fullName,
-            item.branch,
-            item.mobileNo,
+            item.name,
             item.email,
-            item.favoriteQuote,
-            item.whyJoinClub,
-            item.resume,
-            item.photo,
-            item.date,
+            item.phone,
+            item.transactionId,
+            item.collegeName,
+            item.yearOfStudy,
+            item.branch,
+            item.isDualBooted,
+            item.referralCode,
+            item.paymentImg,
         ];
     });
 
@@ -74,10 +76,9 @@ app.get("/", (req, res) => {
     res.send("Hello World");
 });
 
-
 app.get("/api/getData", async (req, res) => {
     try {
-        if(!req.headers.authorization || req.headers.authorization !== admin){
+        if (!req.headers.authorization || req.headers.authorization !== admin) {
             return res.send({
                 success: false,
                 message: "Unauthorized",
@@ -99,7 +100,7 @@ app.get("/api/getData", async (req, res) => {
 
 app.post("/api/updateData", async (req, res) => {
     try {
-        if(!req.headers.authorization || req.headers.authorization !== admin){
+        if (!req.headers.authorization || req.headers.authorization !== admin) {
             return res.send({
                 success: false,
                 message: "Unauthorized",
@@ -108,14 +109,14 @@ app.post("/api/updateData", async (req, res) => {
         const users = await getData();
         const data = transformData(users);
 
-        const  sheets  = await authorize();
+        const sheets = await authorize();
 
         const response = await sheets.spreadsheets.values.update({
-            spreadsheetId:spreadsheetId,
+            spreadsheetId: spreadsheetId,
             range: "Sheet1!A1",
             valueInputOption: "RAW",
             resource: { values: data },
-        })
+        });
 
         return res.send({
             success: true,
@@ -132,7 +133,7 @@ app.post("/api/updateData", async (req, res) => {
 
 const connectToDb = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI)
+        await mongoose.connect(process.env.MONGO_URI);
         console.log("Connected to the database");
     } catch (error) {
         console.log(error);
