@@ -78,12 +78,6 @@ app.get("/", (req, res) => {
 
 app.get("/api/getData", async (req, res) => {
     try {
-        if (!req.headers.authorization || req.headers.authorization !== admin) {
-            return res.send({
-                success: false,
-                message: "Unauthorized",
-            });
-        }
         const users = await getData();
         return res.send({
             data: users,
