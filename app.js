@@ -44,28 +44,12 @@ const transformData = (data) => {
         "name",
         "email",
         "phone",
-        "transactionId",
         "collegeName",
         "yearOfStudy",
-        "branch",
-        "isDualBooted",
-        "referralCode",
-        "paymentImg",
     ];
 
     const newData = data.map((item) => {
-        return [
-            item.name,
-            item.email,
-            item.phone,
-            item.transactionId,
-            item.collegeName,
-            item.yearOfStudy,
-            item.branch,
-            item.isDualBooted,
-            item.referralCode,
-            item.paymentImg,
-        ];
+        return [item.name, item.email, item.phone, item.collegeName, item.yearOfStudy];
     });
 
     newData.unshift(headers);
