@@ -8,13 +8,11 @@ require("dotenv").config();
 const app = express();
 
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
-
 const spreadsheetId = process.env.SPREADSHEET_ID;
-
 const cred = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-
 const admin = process.env.ADMIN;
 
+// Authorize with Google Sheets API
 const authorize = async () => {
     const auth = new google.auth.GoogleAuth({
         credentials: cred,
@@ -22,16 +20,15 @@ const authorize = async () => {
     });
 
     const client = await auth.getClient();
-
     const sheets = google.sheets({ version: "v4", auth: client });
 
     return sheets;
 };
 
+// Get Data from MongoDB
 const getData = async () => {
     try {
         const data = await User.find();
-
         data.reverse();
         return data;
     } catch (err) {
@@ -39,27 +36,42 @@ const getData = async () => {
     }
 };
 
+// Transform data to match Google Sheets format
 const transformData = (data) => {
     const headers = [
-        "name",
+        "fullName",
+        "branch",
+        "mobileNo",
         "email",
-        "phone",
-        "collegeName",
-        "yearOfStudy",
+        "whyJoinClub",
+        "resume",
+        "photo",
+        "date",
     ];
 
     const newData = data.map((item) => {
-        return [item.name, item.email, item.phone, item.collegeName, item.yearOfStudy];
+        return [
+            item.fullName,
+            item.branch,
+            item.mobileNo,
+            item.email,
+            item.whyJoinClub,
+            item.resume,
+            item.photo,
+            item.date,
+        ];
     });
 
     newData.unshift(headers);
     return newData;
 };
 
+// Route: Home
 app.get("/", (req, res) => {
     res.send("Hello World");
 });
 
+// Route: Get Data from MongoDB
 app.get("/api/getData", async (req, res) => {
     try {
         if (!req.headers.authorization || req.headers.authorization !== admin) {
@@ -83,6 +95,7 @@ app.get("/api/getData", async (req, res) => {
     }
 });
 
+// Route: Update Data to Google Sheets
 app.post("/api/updateData", async (req, res) => {
     try {
         if (!req.headers.authorization || req.headers.authorization !== admin) {
@@ -116,6 +129,7 @@ app.post("/api/updateData", async (req, res) => {
     }
 });
 
+// Connect to MongoDB
 const connectToDb = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
@@ -125,6 +139,7 @@ const connectToDb = async () => {
     }
 };
 
+// Start the server
 const startServer = async () => {
     await connectToDb();
     app.listen(4000, () => {
