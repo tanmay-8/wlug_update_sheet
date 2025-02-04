@@ -60,7 +60,6 @@ const transformData = (data) => {
         "yearOfStudy",
         "dualBoot",
         "createdAt",
-        "updatedAt",
         "transactionImage"
     ];
 
@@ -74,7 +73,6 @@ const transformData = (data) => {
             item.yearOfStudy,
             item.dualBoot,
             item.createdAt,
-            item.updatedAt,
             item.transactionImage
         ];
     });
