@@ -1,8 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const { google } = require("googleapis");
-const User = require("./User");
-
+const { Counter, Participant, Registration } = require('./model');
 require("dotenv").config();
 
 const app = express();
@@ -10,8 +9,7 @@ const app = express();
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 const spreadsheetId = process.env.SPREADSHEET_ID;
 const cred = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-const admin = process.env.ADMIN;
-
+const adminpass = process.env.ADMIN;
 // Authorize with Google Sheets API
 const authorize = async () => {
     const auth = new google.auth.GoogleAuth({
@@ -25,40 +23,59 @@ const authorize = async () => {
     return sheets;
 };
 
-// Get Data from MongoDB
 const getData = async () => {
     try {
-        const data = await User.find();
-        data.reverse();
-        return data;
+        const registrations = await Registration.find();
+        let participantsData = [];
+
+        for (const reg of registrations) {
+            for (const participantId of reg.participants) {
+                const participantData = await Participant.findOne({ pid: participantId });
+
+                if (participantData) {
+                    participantsData.push({
+                        ...participantData.toObject(), // Convert Mongoose document to plain object
+                        transactionImage: reg.transactionImage
+                    });
+                }
+            }
+        }
+
+        participantsData.reverse();
+        return participantsData;
     } catch (err) {
-        console.log(err);
+        console.log("Error fetching data:", err);
+        return [];
     }
 };
 
 // Transform data to match Google Sheets format
 const transformData = (data) => {
     const headers = [
-        "fullName",
-        "branch",
-        "mobileNo",
+        "pid",
+        "name",
         "email",
-        "whyJoinClub",
-        "resume",
-        "photo",
-        "date",
+        "phone",
+        "collegeName",
+        "yearOfStudy",
+        "dualBoot",
+        "createdAt",
+        "updatedAt",
+        "transactionImage"
     ];
 
     const newData = data.map((item) => {
         return [
-            item.fullName,
-            item.branch,
-            item.mobileNo,
+            item.pid,
+            item.name,
             item.email,
-            item.whyJoinClub,
-            item.resume,
-            item.photo,
-            item.date,
+            item.phone,
+            item.collegeName,
+            item.yearOfStudy,
+            item.dualBoot,
+            item.createdAt,
+            item.updatedAt,
+            item.transactionImage
         ];
     });
 
@@ -71,45 +88,22 @@ app.get("/", (req, res) => {
     res.send("Hello World");
 });
 
-// Route: Get Data from MongoDB
-app.get("/api/getData", async (req, res) => {
-    try {
-        if (!req.headers.authorization || req.headers.authorization !== admin) {
-            return res.send({
-                success: false,
-                message: "Unauthorized",
-            });
-        }
-        const users = await getData();
-        return res.send({
-            count: users.length,
-            data: users,
-            success: true,
-        });
-    } catch (err) {
-        console.log(err);
-        return res.send({
-            success: false,
-            message: "Something went wrong",
-        });
-    }
-});
-
 // Route: Update Data to Google Sheets
 app.post("/api/updateData", async (req, res) => {
     try {
-        if (!req.headers.authorization || req.headers.authorization !== admin) {
+        if (req.headers.authorization !== adminpass) {
             return res.send({
                 success: false,
-                message: "Unauthorized",
+                message: "Unauthorized Access",
             });
         }
-        const users = await getData();
-        const data = transformData(users);
+
+        const participants = await getData();
+        const data = transformData(participants);
 
         const sheets = await authorize();
 
-        const response = await sheets.spreadsheets.values.update({
+        await sheets.spreadsheets.values.update({
             spreadsheetId: spreadsheetId,
             range: "Sheet1!A1",
             valueInputOption: "RAW",
