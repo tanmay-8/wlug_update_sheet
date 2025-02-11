@@ -29,13 +29,15 @@ const getData = async () => {
         let participantsData = [];
 
         for (const reg of registrations) {
+            const referralCode = reg.referralCode;
             for (const participantId of reg.participants) {
                 const participantData = await Participant.findOne({ pid: participantId });
 
                 if (participantData) {
                     participantsData.push({
                         ...participantData.toObject(), // Convert Mongoose document to plain object
-                        transactionImage: reg.transactionImage
+                        transactionImage: reg.transactionImage,
+                        referralCode: referralCode,
                     });
                 }
             }
@@ -60,7 +62,8 @@ const transformData = (data) => {
         "yearOfStudy",
         "dualBoot",
         "createdAt",
-        "transactionImage"
+        "transactionImage",
+        "referralCode",
     ];
 
     const newData = data.map((item) => {
@@ -73,7 +76,8 @@ const transformData = (data) => {
             item.yearOfStudy,
             item.dualBoot,
             item.createdAt,
-            item.transactionImage
+            item.transactionImage,
+            item.referralCode,
         ];
     });
 
