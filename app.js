@@ -93,12 +93,12 @@ app.get("/", (req, res) => {
 // Route: Update Data to Google Sheets
 app.post("/api/updateData", async (req, res) => {
     try {
-        // if (req.headers.authorization !== adminpass) {
-        //     return res.send({
-        //         success: false,
-        //         message: "Unauthorized Access",
-        //     });
-        // }
+        if (req.headers.authorization !== adminpass) {
+            return res.send({
+                success: false,
+                message: "Unauthorized Access",
+            });
+        }
 
         const participants = await getData();
         const data = transformData(participants);
