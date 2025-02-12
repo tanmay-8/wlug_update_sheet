@@ -54,7 +54,7 @@ const getData = async () => {
 // Transform data to match Google Sheets format
 const transformData = (data) => {
     const headers = [
-        // "pid",
+        "pid",
         "name",
         "email",
         "phone",
@@ -68,7 +68,7 @@ const transformData = (data) => {
 
     const newData = data.map((item) => {
         return [
-            // item.pid,
+            item.pid,
             item.name,
             item.email,
             item.phone,
@@ -93,12 +93,12 @@ app.get("/", (req, res) => {
 // Route: Update Data to Google Sheets
 app.post("/api/updateData", async (req, res) => {
     try {
-        if (req.headers.authorization !== adminpass) {
-            return res.send({
-                success: false,
-                message: "Unauthorized Access",
-            });
-        }
+        // if (req.headers.authorization !== adminpass) {
+        //     return res.send({
+        //         success: false,
+        //         message: "Unauthorized Access",
+        //     });
+        // }
 
         const participants = await getData();
         const data = transformData(participants);
