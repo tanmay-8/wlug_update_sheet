@@ -54,7 +54,7 @@ const getData = async () => {
 // Transform data to match Google Sheets format
 const transformData = (data) => {
     const headers = [
-        "pid",
+        // "pid",
         "name",
         "email",
         "phone",
@@ -68,7 +68,7 @@ const transformData = (data) => {
 
     const newData = data.map((item) => {
         return [
-            item.pid,
+            // item.pid,
             item.name,
             item.email,
             item.phone,
